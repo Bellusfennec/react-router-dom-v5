@@ -1,7 +1,9 @@
 import { Switch, Route, Redirect, useParams } from "react-router-dom";
 import { Link } from "react-router-dom/cjs/react-router-dom.min";
 
-const Home = () => {
+const HomePage = () => {
+  console.log("HomePage");
+
   return (
     <>
       <h1>Home</h1>
@@ -9,7 +11,9 @@ const Home = () => {
     </>
   );
 };
-const UsersList = () => {
+
+const UsersListPage = () => {
+  console.log("UsersListPage");
   return (
     <>
       <h1>UsersList</h1>
@@ -21,45 +25,46 @@ const UsersList = () => {
     </>
   );
 };
-const UserProfile = () => {
+
+const UserProfilePage = () => {
+  const { userId } = useParams();
   return (
     <>
       <h1>UserProfile</h1>
-      <Link to="/edit">UserEdit</Link>
+      <Link to={`/user/${userId}/edit`}>UserEdit</Link>
     </>
   );
 };
-const UserEdit = () => {
+
+const UserEditPage = () => {
+  const { userId } = useParams();
   return (
     <>
       <h1>UserEdit</h1>
-      <Link to="/edit">UserProfile</Link>
+      <Link to={`/user/${userId}/profile`}>UserProfile</Link>
     </>
   );
 };
-const UsersLayout = () => {
-  const { userId, page } = useParams();
 
-  if (!userId) {
-    <Redirect to="/users" />;
-  }
-  if (userId && page !== "profile" && page !== "edit") {
-    <Redirect to="/users/profile" />;
-  }
+function UsersLayout() {
+  const { userId, page } = useParams();
+  console.log("UsersLayout");
+
   return (
-    <>
-      {userId && page === "profile" && <UserProfile />}
-      {userId && page === "edit" && <UserEdit />}
-      {!userId && <UsersList />}
-    </>
+    <Switch>
+      <Route path="/users/:userId?/profile" component={UserProfilePage} />
+      <Route path="/users/:userId?/edit" component={UserEditPage} />
+      <Route exact path="/users" component={UsersListPage} />
+    </Switch>
   );
-};
+}
 function App() {
   return (
     <Switch>
-      <Route path="/" exact component={Home} />
-      <Route path="/users/:userId/page?" component={UsersLayout} />
-      <Redirect from="*" to="/" />
+      <Route path="/" exact component={HomePage} />
+      <Route path="/users" component={UsersLayout} />
+      {/* <Route path="/users/:userId?/page?" component={UsersLayout} /> */}
+      {/* <Redirect from="*" to="/" /> */}
     </Switch>
   );
 }
