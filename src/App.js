@@ -1,66 +1,131 @@
-import { Switch, Route, Redirect, useParams } from "react-router-dom";
-import { Link } from "react-router-dom/cjs/react-router-dom.min";
+import {
+  BrowserRouter,
+  Link,
+  Route,
+  Switch,
+  useParams,
+  useRouteMatch,
+  Redirect,
+} from "react-router-dom";
 
-const Home = () => {
+function App() {
+  return (
+    <BrowserRouter>
+      <AppLayout>
+        <Switch>
+          <Route path="/" exact component={HomePage} />
+          <Route path="/users/:userId?/:page?" component={UsersLayout}>
+            <UsersLayout>
+              <Switch>
+                <Route
+                  path="/users/:userId/profile"
+                  component={UserProfilePage}
+                />
+                <Route path="/users/:userId/edit" component={UserEditPage} />
+                <Route exact path="/users" component={UsersListPage} />
+              </Switch>
+            </UsersLayout>
+          </Route>
+          <Redirect from="*" to="/" />
+        </Switch>
+      </AppLayout>
+    </BrowserRouter>
+  );
+}
+function AppLayout({ children }) {
+  return (
+    <>
+      <h1>App Layout</h1>
+      <ul>
+        <li>
+          <Link to="/users">Users List</Link>
+        </li>
+      </ul>
+      {children}
+    </>
+  );
+}
+function HomePage() {
   return (
     <>
       <h1>Home</h1>
-      <Link to="/users">UserList</Link>
     </>
   );
-};
-const UsersList = () => {
-  return (
-    <>
-      <h1>UsersList</h1>
-      <Link to="/1">User1</Link>
-      <Link to="/2">User2</Link>
-      <Link to="/3">User3</Link>
-      <Link to="/4">User4</Link>
-      <Link to="/5">User5</Link>
-    </>
-  );
-};
-const UserProfile = () => {
-  return (
-    <>
-      <h1>UserProfile</h1>
-      <Link to="/edit">UserEdit</Link>
-    </>
-  );
-};
-const UserEdit = () => {
-  return (
-    <>
-      <h1>UserEdit</h1>
-      <Link to="/edit">UserProfile</Link>
-    </>
-  );
-};
-const UsersLayout = () => {
+}
+function UsersLayout({ children }) {
+  const { url } = useRouteMatch();
   const { userId, page } = useParams();
-
-  if (!userId) {
-    <Redirect to="/users" />;
+  if (page && page !== "profile" && page !== "edit") {
+    return <Redirect to="/users" />;
   }
-  if (userId && page !== "profile" && page !== "edit") {
-    <Redirect to="/users/profile" />;
-  }
+  if (userId && !page) return <Redirect to={url + "/profile"} />;
   return (
     <>
-      {userId && page === "profile" && <UserProfile />}
-      {userId && page === "edit" && <UserEdit />}
-      {!userId && <UsersList />}
+      <h1>Users Layout</h1>
+      <ul>
+        <li>
+          <Link to="/">Home</Link>
+        </li>
+      </ul>
+      {children}
     </>
   );
-};
-function App() {
+}
+function UsersListPage() {
   return (
-    <Switch>
-      <Route path="/" exact component={Home} />
-      <Route path="/users/:userId/page?" component={UsersLayout} />
-      <Redirect from="*" to="/" />
-    </Switch>
+    <>
+      <h1>Users List</h1>
+      <ul>
+        <li>
+          <Link to="/users/1">Users 1</Link>
+        </li>
+        <li>
+          <Link to="/users/2">Users 2</Link>
+        </li>
+        <li>
+          <Link to="/users/3">Users 3</Link>
+        </li>
+        <li>
+          <Link to="/users/4">Users 4</Link>
+        </li>
+        <li>
+          <Link to="/users/5">Users 5</Link>
+        </li>
+      </ul>
+    </>
+  );
+}
+function UserProfilePage() {
+  const { userId } = useParams();
+  return (
+    <>
+      <h1>User Profile</h1>
+      <h3>id: {userId}</h3>
+      <ul>
+        <li>
+          <Link to={`/users/${userId}/edit`}>Edit</Link>
+        </li>
+        <li>
+          <Link to="/users">Users List</Link>
+        </li>
+      </ul>
+    </>
+  );
+}
+function UserEditPage() {
+  const { userId } = useParams();
+  return (
+    <>
+      <h1>User Edit</h1>
+      <ul>
+        <li>
+          <Link to={`/users/${userId}/profile`}>Profile</Link>
+        </li>
+        <li>
+          <Link to="/users">Users List</Link>
+        </li>
+      </ul>
+    </>
   );
 }
 
